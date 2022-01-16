@@ -9,8 +9,8 @@ class CLI:
         self.DataBase.PrintDebugTable()
         self.CurrentUserID = -1
         self.InputHandler = InputHandler()
-        print("Welcome to Example Corporation's Database!")
-        PlaySound("https://www.winhistory.de/more/winstart/down/o98.wav")
+        print(const.START_UP_TEXT)
+        PlaySound(const.START_UP_SOUND_PATH)
         self.PublicMainMenu()
     
     def DrawMenu(self, Title, ListOfOptions):
@@ -37,7 +37,7 @@ class CLI:
     
     def LoggedInMenu(self):
         Name = self.DataBase.FindUser(self.DataBase.SearchCriteria.ID, self.CurrentUserID)[1]
-        value = self.DrawMenu(f"Welcome {Name}!", ["Change Email", "Change Name", "Change Phone Number", "Log Out", "Delete Account"])
+        value = self.DrawMenu(f"Welcome {Name}!", ["Change Email", "Change Name", "Change Phone Number", "Log Off", "Delete Account"])
         if value == 1:
             self.LogIn()
         elif value == 2:
@@ -46,57 +46,78 @@ class CLI:
             self.Exit()
         elif value == 4:
             self.LogOff()
+        elif value == 5:
+            self.DeleteAccount()
+
     
     def LogOff(self):
         self.CurrentUserID = -1
-        print("You have been logged off.")
-        PlaySound("https://www.winhistory.de/more/winstart/down/winxpshutdown.wav")
+        print(const.LOG_OFF_TEXT)
+        PlaySound(const.LOG_OFF_SOUND_PATH)
         self.PublicMainMenu()
+    
+    def DeleteAccount(self):
+        PrintHeader(const.DELETE_ACCOUNT_HEADER)
+        answer = input(f"{const.DELETE_ACCOUNT_WARNING} Do you wish to continue? (Y/n) ").strip()
+        if answer == "Y":
+            Password = self.InputHandler.GetPassword(const.PASSWORD_PROMPT)
+            if self.DataBase.DeleteUser(self.CurrentUserID, Password):
+                Notice(const.DELETE_ACCOUNT_SUCCESS)
+                self.LogOff()
+            else:
+                Notice(const.DELETE_ACCOUNT_FAIL)
+                self.LoggedInMenu()
+        else:
+            self.LoggedInMenu()
+
 
     def CreateNewUser(self):
-        PrintHeader("Create a New User")
-        print("To create a new user, we need your name, phone number, email address, and a new password.\n\n")
-        Name = self.InputHandler.GetValidInput(InputBehavior=self.InputHandler.InputBehavior.Raw, Message="Enter your Name")
+        PrintHeader(const.SIGN_UP_MENU_HEADER)
+        print(const.SIGN_UP_DESC_TEXT)
         print()
-        Phone = self.InputHandler.GetValidInput(InputBehavior=self.InputHandler.InputBehavior.PhoneNumber, Message="Enter your Phone Number", FailedMessage="You entered an invalid phone number. Please provide a valid, 10 digit US phone number.", RetryOnFail=True)
+        Name = self.InputHandler.GetValidInput(InputBehavior=self.InputHandler.InputBehavior.Raw, Message=const.SIGN_UP_NAME_PROMPT)
         print()
-        Email = self.InputHandler.GetValidInput(InputBehavior=self.InputHandler.InputBehavior.Email, Message="Enter your Email Address", FailedMessage="You entered an invalid email address. Please provide a valid email address", RetryOnFail=True)
+        Phone = self.InputHandler.GetValidInput(InputBehavior=self.InputHandler.InputBehavior.PhoneNumber, Message=const.SIGN_UP_PHONE_PROMPT, FailedMessage=const.SIGN_UP_PHONE_PROMPT_FAIL, RetryOnFail=True)
+        print()
+        Email = self.InputHandler.GetValidInput(InputBehavior=self.InputHandler.InputBehavior.Email, Message=const.EMAIL_PROMPT, FailedMessage=const.SIGN_UP_EMAIL_PROMPT_FAIL, RetryOnFail=True)
         print()
         while True:
-            Password = self.InputHandler.GetPassword("Enter your Password")
+            Password = self.InputHandler.GetPassword(const.SIGN_UP_PASSWORD_PROMPT)
             print()
-            ConfirmPassword = self.InputHandler.GetPassword("Confirm your Password")
+            ConfirmPassword = self.InputHandler.GetPassword(const.SIGN_UP_PASSWORD_PROMPT_CONFIRM)
             print()
             if Password == ConfirmPassword:
                 break
             else:
-                Notice("Your passwords did not match. Please try again.")
+                Notice(const.SIGN_UP_PASSWORD_PROMPT_FAIL_TO_MATCH)
                 print()
         self.DataBase.AddUser(Name, Phone, Email, Password)
-        Notice("Thank you for creating your account!")
+        Notice(const.SIGN_UP_THANK_YOU)
         self.PublicMainMenu()
         
     def LogIn(self):
-        PrintHeader("Log In")
-        UserName = input("Enter your Email Address or Phone Number: ")
+        PrintHeader(const.LOG_IN_HEADER)
+        UserName = self.InputHandler.GetValidInput(InputBehavior=self.InputHandler.InputBehavior.Email, Message=const.EMAIL_PROMPT, FailedMessage=const.INVALID_EMAIL)
         print()
-        if not self.DataBase.DoesUserExist(UserName):
-            Notice("Invalid username. Please try again.")
+        if not UserName:
             self.LogIn()
-        Password = input("Enter your Password: ")
+        if not self.DataBase.DoesUserExist(UserName):
+            Notice(const.NO_ACCOUNT_WITH_THIS_EMAIL)
+            self.LogIn()
+        Password = self.InputHandler.GetPassword(const.PASSWORD_PROMPT)
         self.CurrentUserID = self.DataBase.AttemptLogIn(UserName, Password)
         if self.CurrentUserID > 0:
             print()
-            print("Log In Success!")
-            PlaySound("https://www.winhistory.de/more/winstart/down/oxp.wav")
+            print(const.LOG_IN_TEXT)
+            PlaySound(const.LOG_IN_SOUND_PATH)
             self.LoggedInMenu()
         else:
-            Notice("Incorrect password. Please try again.")
+            Notice(const.INCORRECT_PASSWORD)
             self.LogIn()
 
     def Exit(self):
-        print("Shutting down...")
-        PlaySound("https://www.winhistory.de/more/winstart/down/win98logoff.wav")
+        print(const.SHUTDOWN_TEXT)
+        PlaySound(const.SHUTDOWN_SOUND_PATH)
         quit()
 
 def Notice(Message):
@@ -116,6 +137,5 @@ def PrintHeader(title):
 def PlaySound(URL):
     if platform.system().lower()=="windows":
         os.system(f"powershell -c (New-Object Media.SoundPlayer \"{URL}\").PlaySync();")
-        #pass
     # Sorry, only Windows users get the fun sound effects.
     

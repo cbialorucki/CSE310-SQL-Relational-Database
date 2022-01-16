@@ -33,22 +33,13 @@ class DB:
             return self._db.cursor().execute('''SELECT id, name, phone, email FROM users WHERE id=?''', (Input,)).fetchone()
         return None
 
-    def DoesUserExist(self, Input):
-        if self._GetUserFromUserName(Input) != None:
+    def DoesUserExist(self, Email):
+        if self.FindUser(self.SearchCriteria.Email, Email) != None:
             return True
         return False
-    
-    def _GetUserFromUserName(self, Input):
-        EmailTry = self.FindUser(self.SearchCriteria.Email, Input)
-        if EmailTry != None:
-            return EmailTry
-        PhoneTry = self.FindUser(self.SearchCriteria.Phone, Input)
-        if PhoneTry != None:
-            return PhoneTry
-        return None
 
-    def AttemptLogIn(self, Username, Password):
-        User = self._GetUserFromUserName(Username)
+    def AttemptLogIn(self, Email, Password):
+        User = self.FindUser(self.SearchCriteria.Email, Email)
         if User != None:
             if self._DoesPasswordMatch(User[0], Password):
                 return User[0]
