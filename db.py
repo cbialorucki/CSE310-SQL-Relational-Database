@@ -2,11 +2,12 @@ from fileinput import filename
 import sqlite3, enum, re, const
 
 class DB:
-    class SearchCriteria(enum.Enum):
+    class UserAttribute(enum.Enum):
             ID = 0
             Name = 1
             Phone = 2
             Email = 3
+            Password = 4
 
     def __init__(self, FilePath = const.RAM_DB_PATH):
         self._db = sqlite3.connect(FilePath)
@@ -22,24 +23,24 @@ class DB:
     def PrintDebugTable(self):
         print(self._db.cursor().execute('''SELECT * FROM users''').fetchall())
 
-    def FindUser(self, SearchCriteria, Input):
-        if SearchCriteria == self.SearchCriteria.Name:
+    def FindUser(self, UserAttribute, Input):
+        if UserAttribute == self.UserAttribute.Name:
             return self._db.cursor().execute('''SELECT id, name, phone, email FROM users WHERE name=?''', (Input,)).fetchone()
-        elif SearchCriteria == self.SearchCriteria.Phone:
+        elif UserAttribute == self.UserAttribute.Phone:
             return self._db.cursor().execute('''SELECT id, name, phone, email FROM users WHERE phone=?''', (Input,)).fetchone()
-        elif SearchCriteria == self.SearchCriteria.Email:
+        elif UserAttribute == self.UserAttribute.Email:
             return self._db.cursor().execute('''SELECT id, name, phone, email FROM users WHERE email=?''', (Input,)).fetchone()
-        elif SearchCriteria == self.SearchCriteria.ID:
+        elif UserAttribute == self.UserAttribute.ID:
             return self._db.cursor().execute('''SELECT id, name, phone, email FROM users WHERE id=?''', (Input,)).fetchone()
         return None
 
     def DoesUserExist(self, Email):
-        if self.FindUser(self.SearchCriteria.Email, Email) != None:
+        if self.FindUser(self.UserAttribute.Email, Email) != None:
             return True
         return False
 
     def AttemptLogIn(self, Email, Password):
-        User = self.FindUser(self.SearchCriteria.Email, Email)
+        User = self.FindUser(self.UserAttribute.Email, Email)
         if User != None:
             if self._DoesPasswordMatch(User[0], Password):
                 return User[0]
@@ -52,6 +53,23 @@ class DB:
     def DeleteUser(self, ID, Password):
         if self._DoesPasswordMatch(ID, Password):
             self._db.cursor().execute('''DELETE FROM users WHERE id=? ''', (ID,))
+            self._db.commit()
+            return True
+        return False
+    
+    def ChangeUserAttribute(self, ID, UserAttribute, Value, Password):
+        Value = Value.strip()
+        if self._DoesPasswordMatch(ID, Password):
+            if UserAttribute == self.UserAttribute.Email and self.IsEmailValid(Value):
+                self._db.cursor().execute('''UPDATE users SET email=? WHERE id=? ''', (self.IsEmailValid(Value),ID))
+            elif UserAttribute == self.UserAttribute.Name:
+                self._db.cursor().execute('''UPDATE users SET name=? WHERE id=? ''', (Value,ID))
+            elif UserAttribute == self.UserAttribute.Phone and self.IsPhoneValid(Value):
+                self._db.cursor().execute('''UPDATE users SET phone=? WHERE id=? ''', (self.IsPhoneValid(Value),ID))
+            elif UserAttribute == self.UserAttribute.Password:
+                self._db.cursor().execute('''UPDATE users SET password=? WHERE id=? ''', (Value,ID))
+            else: 
+                return False
             self._db.commit()
             return True
         return False

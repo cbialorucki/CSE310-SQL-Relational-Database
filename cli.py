@@ -5,7 +5,7 @@ from inputhandler import InputHandler
 class CLI:
     def __init__(self):
         self.DataBase = DB()
-        self.DataBase.AddUser("CJ", "555-555-5555", "example@sample.com", "abc123")
+        self.DataBase.AddUser("CJ", "5555555555", "example@sample.com", "abc123")
         self.DataBase.PrintDebugTable()
         self.CurrentUserID = -1
         self.InputHandler = InputHandler()
@@ -36,20 +36,63 @@ class CLI:
             self.Exit()
     
     def LoggedInMenu(self):
-        Name = self.DataBase.FindUser(self.DataBase.SearchCriteria.ID, self.CurrentUserID)[1]
-        value = self.DrawMenu(f"Welcome {Name}!", ["Change Email", "Change Name", "Change Phone Number", "Log Off", "Delete Account"])
+        Name = self.DataBase.FindUser(self.DataBase.UserAttribute.ID, self.CurrentUserID)[1]
+        value = self.DrawMenu(f"Welcome {Name}!", ["Change Email", "Change Name", "Change Phone Number", "Change Password", "Log Off", "Delete Account"])
         if value == 1:
-            self.LogIn()
+            self.DrawChangeValueMenu(self.DataBase.UserAttribute.Email)
         elif value == 2:
-            self.CreateNewUser()
+            self.DrawChangeValueMenu(self.DataBase.UserAttribute.Name)
         elif value == 3:
-            self.Exit()
+            self.DrawChangeValueMenu(self.DataBase.UserAttribute.Phone)
         elif value == 4:
-            self.LogOff()
+            self.DrawChangeValueMenu(self.DataBase.UserAttribute.Password)
         elif value == 5:
+            self.LogOff()
+        elif value == 6:
             self.DeleteAccount()
-
     
+    def DrawChangeValueMenu(self, UserAttribute):
+        User = self.DataBase.FindUser(self.DataBase.UserAttribute.ID, self.CurrentUserID)
+        Password = ""
+        NewValue = ""
+        if UserAttribute == self.DataBase.UserAttribute.Email:
+            PrintHeader("Change Email")
+            print(f"Your current email is {User[3]}")
+            print()
+            NewValue = self.InputHandler.GetValidInput(InputBehavior=self.InputHandler.InputBehavior.Email, Message="Enter your new email address", FailedMessage=const.INVALID_EMAIL, RetryOnFail=True)
+        elif UserAttribute == self.DataBase.UserAttribute.Name:
+            PrintHeader("Change Name")
+            print(f"Your current name is {User[1]}")
+            print()
+            NewValue = input("Enter your new name: ").strip()
+        elif UserAttribute == self.DataBase.UserAttribute.Phone:
+            PrintHeader("Change Phone Number")
+            OldPhoneNumber = f"({User[2][:3]}) {User[2][3:6]}-{User[2][6:]}"
+            print(f"Your current phone number is {OldPhoneNumber}")
+            print()
+            NewValue = self.InputHandler.GetValidInput(InputBehavior=self.InputHandler.InputBehavior.PhoneNumber, Message="Enter your new phone number", FailedMessage=const.SIGN_UP_PHONE_PROMPT_FAIL, RetryOnFail=True)
+        elif UserAttribute == self.DataBase.UserAttribute.Password:
+            PrintHeader("Change Password")
+            Password = self.InputHandler.GetPassword("Enter your old password")
+            while True:
+                NewValue = self.InputHandler.GetPassword("Enter your new password")
+                ConfirmNewPassword = self.InputHandler.GetPassword("Confirm your new password")
+                if NewValue == ConfirmNewPassword:
+                    break
+                else:
+                    Notice(const.SIGN_UP_PASSWORD_PROMPT_FAIL_TO_MATCH)
+
+        if Password == "":
+            Password = self.InputHandler.GetPassword(const.PASSWORD_PROMPT)
+        print()
+        if self.DataBase.ChangeUserAttribute(self.CurrentUserID, UserAttribute, NewValue, Password):
+            Notice("Successfully updated!")
+        else:
+            Notice("Update failed.")
+        self.LoggedInMenu()
+
+
+
     def LogOff(self):
         self.CurrentUserID = -1
         print(const.LOG_OFF_TEXT)
@@ -69,7 +112,6 @@ class CLI:
                 self.LoggedInMenu()
         else:
             self.LoggedInMenu()
-
 
     def CreateNewUser(self):
         PrintHeader(const.SIGN_UP_MENU_HEADER)
