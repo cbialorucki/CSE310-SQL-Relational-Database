@@ -3,6 +3,6 @@ from cli import CLI
 
 
 def main():
-    app = CLI()
+    CLI()
 
 main()
