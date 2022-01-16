@@ -1,0 +1,2 @@
+SLEEP_NOTICE = 2
+RAM_DB_PATH = ':memory:'
