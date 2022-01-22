@@ -3,13 +3,9 @@ RAM_DB_PATH = ':memory:'
 
 # UI Messages
 START_UP_TEXT = "Starting up..."
-START_UP_SOUND_PATH = "https://www.winhistory.de/more/winstart/down/o98.wav"
 LOG_IN_TEXT = "Welcome"
-LOG_IN_SOUND_PATH = "https://www.winhistory.de/more/winstart/down/oxp.wav"
 LOG_OFF_TEXT = "Logging off..."
-LOG_OFF_SOUND_PATH = "https://www.winhistory.de/more/winstart/down/winxpshutdown.wav"
 SHUTDOWN_TEXT = "Shutting down..."
-SHUTDOWN_SOUND_PATH = "https://www.winhistory.de/more/winstart/down/win98logoff.wav"
 
 # Logging in
 LOG_IN_HEADER = "Sign in"
@@ -21,7 +17,7 @@ INCORRECT_PASSWORD = "Incorrect password. Please try again."
 
 # Signing up
 SIGN_UP_MENU_HEADER = "Create an Account"
-SIGN_UP_DESC_TEXT = "To create a new user, we need your name, phone number, email address, and a new password."
+SIGN_UP_DESC_TEXT = "To create a new user, we will need your name, phone number, email address, and a password."
 SIGN_UP_NAME_PROMPT = "Enter your name"
 SIGN_UP_EMAIL_PROMPT = "Enter your email"
 SIGN_UP_EMAIL_PROMPT_FAIL = "You entered an invalid email address. Please provide a valid email address."

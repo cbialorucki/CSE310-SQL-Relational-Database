@@ -12,11 +12,13 @@ class DB:
     def __init__(self, FilePath = const.RAM_DB_PATH):
         self._db = sqlite3.connect(FilePath)
 
-        self._db.cursor().execute('''CREATE TABLE users(id INTEGER PRIMARY KEY, name TEXT, phone TEXT, email TEXT unique, password TEXT)''')
+        self._db.cursor().execute('''CREATE TABLE users(id INTEGER PRIMARY KEY, name TEXT, phone TEXT unique, email TEXT unique, password TEXT)''')
         self._db.commit()
 
     def AddUser(self, Name, Phone, Email, Password):
         Email = Email.lower()
+        if self.FindUser(self.UserAttribute.Phone, Phone) or self.FindUser(self.UserAttribute.Email, Email):
+            return False
         self._db.cursor().execute('''INSERT INTO users(name, phone, email, password) VALUES(?,?,?,?)''', (Name, Phone, Email, Password))
         self._db.commit()
     
@@ -25,26 +27,26 @@ class DB:
 
     def FindUser(self, UserAttribute, Input):
         if UserAttribute == self.UserAttribute.Name:
-            return self._db.cursor().execute('''SELECT id, name, phone, email FROM users WHERE name=?''', (Input,)).fetchone()
+            return self._db.cursor().execute('''SELECT id, name, phone, email FROM users WHERE name=?''', (Input,)).fetchall()
         elif UserAttribute == self.UserAttribute.Phone:
             return self._db.cursor().execute('''SELECT id, name, phone, email FROM users WHERE phone=?''', (Input,)).fetchone()
         elif UserAttribute == self.UserAttribute.Email:
             return self._db.cursor().execute('''SELECT id, name, phone, email FROM users WHERE email=?''', (Input,)).fetchone()
         elif UserAttribute == self.UserAttribute.ID:
             return self._db.cursor().execute('''SELECT id, name, phone, email FROM users WHERE id=?''', (Input,)).fetchone()
-        return None
+        return False
 
     def DoesUserExist(self, Email):
-        if self.FindUser(self.UserAttribute.Email, Email) != None:
+        if self.FindUser(self.UserAttribute.Email, Email):
             return True
         return False
 
     def AttemptLogIn(self, Email, Password):
         User = self.FindUser(self.UserAttribute.Email, Email)
-        if User != None:
+        if User:
             if self._DoesPasswordMatch(User[0], Password):
                 return User[0]
-        return -1
+        return False
     
     def _DoesPasswordMatch(self, UserID, Password):
         CorrectPassword = self._db.cursor().execute('''SELECT password FROM users WHERE id=?''', (UserID,)).fetchall()[0][0]

@@ -1,8 +1,8 @@
 from db import DB
 from cli import CLI
 
-
 def main():
-    CLI()
+    CLI().Launch()
 
-main()
+if __name__ == "__main__":
+    main()

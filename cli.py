@@ -4,13 +4,12 @@ from inputhandler import InputHandler
 
 class CLI:
     def __init__(self):
-        self.DataBase = DB()
-        self.DataBase.AddUser("CJ", "5555555555", "example@sample.com", "abc123")
-        self.DataBase.PrintDebugTable()
+        self.Database = DB()
         self.CurrentUserID = -1
         self.InputHandler = InputHandler()
-        print(const.START_UP_TEXT)
-        PlaySound(const.START_UP_SOUND_PATH)
+        
+    def Launch(self):
+        Notice(const.START_UP_TEXT)
         self.PublicMainMenu()
     
     def DrawMenu(self, Title, ListOfOptions):
@@ -36,42 +35,42 @@ class CLI:
             self.Exit()
     
     def LoggedInMenu(self):
-        Name = self.DataBase.FindUser(self.DataBase.UserAttribute.ID, self.CurrentUserID)[1]
+        Name = self.Database.FindUser(self.Database.UserAttribute.ID, self.CurrentUserID)[1]
         value = self.DrawMenu(f"Welcome {Name}!", ["Change Email", "Change Name", "Change Phone Number", "Change Password", "Log Off", "Delete Account"])
         if value == 1:
-            self.DrawChangeValueMenu(self.DataBase.UserAttribute.Email)
+            self.DrawChangeValueMenu(self.Database.UserAttribute.Email)
         elif value == 2:
-            self.DrawChangeValueMenu(self.DataBase.UserAttribute.Name)
+            self.DrawChangeValueMenu(self.Database.UserAttribute.Name)
         elif value == 3:
-            self.DrawChangeValueMenu(self.DataBase.UserAttribute.Phone)
+            self.DrawChangeValueMenu(self.Database.UserAttribute.Phone)
         elif value == 4:
-            self.DrawChangeValueMenu(self.DataBase.UserAttribute.Password)
+            self.DrawChangeValueMenu(self.Database.UserAttribute.Password)
         elif value == 5:
             self.LogOff()
         elif value == 6:
             self.DeleteAccount()
     
     def DrawChangeValueMenu(self, UserAttribute):
-        User = self.DataBase.FindUser(self.DataBase.UserAttribute.ID, self.CurrentUserID)
+        User = self.Database.FindUser(self.Database.UserAttribute.ID, self.CurrentUserID)
         Password = ""
         NewValue = ""
-        if UserAttribute == self.DataBase.UserAttribute.Email:
+        if UserAttribute == self.Database.UserAttribute.Email:
             PrintHeader("Change Email")
             print(f"Your current email is {User[3]}")
             print()
             NewValue = self.InputHandler.GetValidInput(InputBehavior=self.InputHandler.InputBehavior.Email, Message="Enter your new email address", FailedMessage=const.INVALID_EMAIL, RetryOnFail=True)
-        elif UserAttribute == self.DataBase.UserAttribute.Name:
+        elif UserAttribute == self.Database.UserAttribute.Name:
             PrintHeader("Change Name")
             print(f"Your current name is {User[1]}")
             print()
             NewValue = input("Enter your new name: ").strip()
-        elif UserAttribute == self.DataBase.UserAttribute.Phone:
+        elif UserAttribute == self.Database.UserAttribute.Phone:
             PrintHeader("Change Phone Number")
             OldPhoneNumber = f"({User[2][:3]}) {User[2][3:6]}-{User[2][6:]}"
             print(f"Your current phone number is {OldPhoneNumber}")
             print()
             NewValue = self.InputHandler.GetValidInput(InputBehavior=self.InputHandler.InputBehavior.PhoneNumber, Message="Enter your new phone number", FailedMessage=const.SIGN_UP_PHONE_PROMPT_FAIL, RetryOnFail=True)
-        elif UserAttribute == self.DataBase.UserAttribute.Password:
+        elif UserAttribute == self.Database.UserAttribute.Password:
             PrintHeader("Change Password")
             Password = self.InputHandler.GetPassword("Enter your old password")
             while True:
@@ -85,18 +84,15 @@ class CLI:
         if Password == "":
             Password = self.InputHandler.GetPassword(const.PASSWORD_PROMPT)
         print()
-        if self.DataBase.ChangeUserAttribute(self.CurrentUserID, UserAttribute, NewValue, Password):
+        if self.Database.ChangeUserAttribute(self.CurrentUserID, UserAttribute, NewValue, Password):
             Notice("Successfully updated!")
         else:
             Notice("Update failed.")
         self.LoggedInMenu()
 
-
-
     def LogOff(self):
         self.CurrentUserID = -1
         print(const.LOG_OFF_TEXT)
-        PlaySound(const.LOG_OFF_SOUND_PATH)
         self.PublicMainMenu()
     
     def DeleteAccount(self):
@@ -104,7 +100,7 @@ class CLI:
         answer = input(f"{const.DELETE_ACCOUNT_WARNING} Do you wish to continue? (Y/n) ").strip()
         if answer == "Y":
             Password = self.InputHandler.GetPassword(const.PASSWORD_PROMPT)
-            if self.DataBase.DeleteUser(self.CurrentUserID, Password):
+            if self.Database.DeleteUser(self.CurrentUserID, Password):
                 Notice(const.DELETE_ACCOUNT_SUCCESS)
                 self.LogOff()
             else:
@@ -133,7 +129,7 @@ class CLI:
             else:
                 Notice(const.SIGN_UP_PASSWORD_PROMPT_FAIL_TO_MATCH)
                 print()
-        self.DataBase.AddUser(Name, Phone, Email, Password)
+        self.Database.AddUser(Name, Phone, Email, Password)
         Notice(const.SIGN_UP_THANK_YOU)
         self.PublicMainMenu()
         
@@ -143,23 +139,21 @@ class CLI:
         print()
         if not UserName:
             self.LogIn()
-        if not self.DataBase.DoesUserExist(UserName):
+        if not self.Database.DoesUserExist(UserName):
             Notice(const.NO_ACCOUNT_WITH_THIS_EMAIL)
             self.LogIn()
         Password = self.InputHandler.GetPassword(const.PASSWORD_PROMPT)
-        self.CurrentUserID = self.DataBase.AttemptLogIn(UserName, Password)
+        self.CurrentUserID = self.Database.AttemptLogIn(UserName, Password)
         if self.CurrentUserID > 0:
             print()
             print(const.LOG_IN_TEXT)
-            PlaySound(const.LOG_IN_SOUND_PATH)
             self.LoggedInMenu()
         else:
             Notice(const.INCORRECT_PASSWORD)
             self.LogIn()
 
     def Exit(self):
-        print(const.SHUTDOWN_TEXT)
-        PlaySound(const.SHUTDOWN_SOUND_PATH)
+        Notice(const.SHUTDOWN_TEXT)
         quit()
 
 def Notice(Message):
@@ -176,8 +170,4 @@ def PrintHeader(title):
     ClearScreen()
     print(f"{title}\n==========\n")
 
-def PlaySound(URL):
-    if platform.system().lower()=="windows":
-        os.system(f"powershell -c (New-Object Media.SoundPlayer \"{URL}\").PlaySync();")
-    # Sorry, only Windows users get the fun sound effects.
     
