@@ -1,9 +1,10 @@
-import db, random, string
+from collections import Counter
+import db, random, string, datetime
 
 class TestDB:
 
     Database = db.DB()
-    TestUsers = [["Carl", "111-111-1111", "carl@yahoo.com", "drgaf65s41f6s"], ["Jenni J.", "222-314-1789", "jenni@outlook.com", "setgg48596"], ["Rainbow Sunshine", "999-999-9999", "rainbowsunshine@hotmail.com", "6+rftyu5512"]]
+    TestUsers = [["Carl", "111-111-1111", "carl@yahoo.com", "drgaf65s41f6s"], ["Jenni J.", "222-314-1789", "jenni@outlook.com", "setgg48596"], ["Rainbow Sunshine", "999-999-9999", "rainbowsunshine@hotmail.com", "6+rftyu5512"], ["Carl", "914-867-5309", "helloworld@live.com", "fsedg8458f"]]
 
     def test_IsEmailValid(self):
         ValidEmails = ["johndoe@example.com", "humanoid567@yahoo.com", "HeLlOw0rLd@gmail.com", "ALLC4PSMAN@outlook.com", "dsfsfsDFGDFGdfgsegsdgfsdg@HJghjGjhGBjhGBhGJkGhGJHUGhGGHJgJg.com"]
@@ -100,6 +101,24 @@ class TestDB:
             self.Database.ChangeUserAttribute(ID, self.Database.UserAttribute.Name, User[0], User[3])
             self.Database.ChangeUserAttribute(ID, self.Database.UserAttribute.Phone, User[1], User[3])
             self.Database.ChangeUserAttribute(ID, self.Database.UserAttribute.Email, User[2], User[3])
+    
+    def test_GetTotalUsers(self):
+        assert self.Database.GetTotalUsers() == len(self.TestUsers)
+    
+    def test_GetMostCommonName(self):
+        Names = []
+        for User in self.TestUsers:
+            Names.append(User[0])
+        assert self.Database.GetMostCommonName() == Counter(Names).most_common(1)[0][0]
+    
+    def test_GetSumOfIDs(self):
+        IDSum = 0
+        for User in self.TestUsers:
+            IDSum += self.GetIDFromEmail(User[2])
+        assert self.Database.GetSumOfIDs() == IDSum
+    
+    def test_GetUptime(self):
+        assert type(self.Database.GetUptime()) is datetime.timedelta
     
     def test_DeleteUser(self):
         for User in self.TestUsers:

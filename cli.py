@@ -1,4 +1,4 @@
-import platform, os, time, const
+import platform, os, time, const, datetime
 from db import DB
 from inputhandler import InputHandler
 
@@ -12,8 +12,11 @@ class CLI:
         Notice(const.START_UP_TEXT)
         self.PublicMainMenu()
     
-    def DrawMenu(self, Title, ListOfOptions):
+    def DrawMenu(self, Title, ListOfOptions, Details = None):
         PrintHeader(Title)
+        if Details:
+            print(Details)
+            print()
         PossibleResponses = []
         for x in range(len(ListOfOptions)):
             PossibleResponses.append(x+1)
@@ -24,15 +27,22 @@ class CLI:
             return result
         return self.DrawMenu(Title, ListOfOptions)
 
-
     def PublicMainMenu(self):
-        value = self.DrawMenu("Main Menu", ["Log In", "Create a New User", "Exit"])
+        value = self.DrawMenu("Main Menu", ["Log In", "Create a New User", "View Statistical Information", "Exit"])
         if value == 1:
             self.LogIn()
         elif value == 2:
             self.CreateNewUser()
         elif value == 3:
+            self.ShowStatisticalInformation()
+        elif value == 4:
             self.Exit()
+    
+    def ShowStatisticalInformation(self):
+        details = f"Total Users: {self.Database.GetTotalUsers()}\nSum of IDs: {self.Database.GetSumOfIDs()}\nMost Common Name: {self.Database.GetMostCommonName()}\nUptime: {str(self.Database.GetUptime())}"
+        value = self.DrawMenu("View Statistical Information", ["Go Back"], details)
+        if value == 1:
+            self.PublicMainMenu()
     
     def LoggedInMenu(self):
         Name = self.Database.FindUser(self.Database.UserAttribute.ID, self.CurrentUserID)[1]

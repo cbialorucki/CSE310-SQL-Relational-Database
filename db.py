@@ -1,4 +1,5 @@
 from fileinput import filename
+from datetime import datetime
 import sqlite3, enum, re, const
 
 class DB:
@@ -14,6 +15,8 @@ class DB:
 
         self._db.cursor().execute('''CREATE TABLE users(id INTEGER PRIMARY KEY, name TEXT, phone TEXT unique, email TEXT unique, password TEXT)''')
         self._db.commit()
+
+        self.StartedTime = datetime.now()
 
     def AddUser(self, Name, Phone, Email, Password):
         Email = Email.lower()
@@ -75,6 +78,22 @@ class DB:
             self._db.commit()
             return True
         return False
+    
+    def GetTotalUsers(self):
+        return self._db.cursor().execute('''SELECT Count() FROM users''').fetchone()[0]
+    
+    def GetMostCommonName(self):
+        if int(self.GetTotalUsers()) == 0:
+            return "N/A"
+        return self._db.cursor().execute('''SELECT name, Count(name) AS cnt FROM users GROUP BY name ORDER BY cnt DESC''').fetchone()[0]
+    
+    def GetSumOfIDs(self):
+        if int(self.GetTotalUsers()) == 0:
+            return "N/A"
+        return self._db.cursor().execute('''SELECT Sum(id) FROM users''').fetchone()[0]
+
+    def GetUptime(self):
+        return datetime.now() - self.StartedTime
     
     @staticmethod
     def IsEmailValid(Email):
