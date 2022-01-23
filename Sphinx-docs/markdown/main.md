@@ -2,3 +2,4 @@
 
 
 ### main.main()
+Starts the application.
