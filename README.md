@@ -6,7 +6,7 @@ This is a local account management system written in Python. It creates a local 
 
 This project was designed to help teach myself about how to use a SQL database. As a future software engineer, I will need to work with SQL databases to store information and build systems for other people. I will be in a better position to build solutions if I better understand how to use SQL.
 
-[Software Demo Video](http://youtube.link.goes.here)
+[Software Demo Video](https://youtu.be/qZoJPcm4lCk)
 
 # Relational Database
 
