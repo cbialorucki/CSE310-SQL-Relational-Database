@@ -3,16 +3,27 @@ from db import DB
 from inputhandler import InputHandler
 
 class CLI:
+    """A command line application for interacting with a local database."""
+
     def __init__(self):
         self.Database = DB()
         self.CurrentUserID = -1
         self.InputHandler = InputHandler()
         
     def Launch(self):
+        """Launches the program."""
         Notice(const.START_UP_TEXT)
         self.PublicMainMenu()
     
     def DrawMenu(self, Title, ListOfOptions, Details = None):
+        """Draws a menu and returns the user's selection.
+
+        :param Title str: The title of the menu to display.
+        :param ListOfOptions list[str]: A list of options to display in the menu. Every option cooresponds to a possible return value.
+        :param Details str: A description the appears below the header. (Default value = None)
+        :returns: int: The number the user selected.
+
+        """
         PrintHeader(Title)
         if Details:
             print(Details)
@@ -28,6 +39,7 @@ class CLI:
         return self.DrawMenu(Title, ListOfOptions)
 
     def PublicMainMenu(self):
+        """Launches and drives the main menu for users not logged in."""
         value = self.DrawMenu("Main Menu", ["Log In", "Create a New User", "View Statistical Information", "Exit"])
         if value == 1:
             self.LogIn()
@@ -39,12 +51,14 @@ class CLI:
             self.Exit()
     
     def ShowStatisticalInformation(self):
+        """Launches and drives the statistical information menu."""
         details = f"Total Users: {self.Database.GetTotalUsers()}\nSum of IDs: {self.Database.GetSumOfIDs()}\nMost Common Name: {self.Database.GetMostCommonName()}\nUptime: {str(self.Database.GetUptime())}"
         value = self.DrawMenu("View Statistical Information", ["Go Back"], details)
         if value == 1:
             self.PublicMainMenu()
     
     def LoggedInMenu(self):
+        """Launches and drives the menu for logged in users."""
         Name = self.Database.FindUser(self.Database.UserAttribute.ID, self.CurrentUserID)[1]
         value = self.DrawMenu(f"Welcome {Name}!", ["Change Email", "Change Name", "Change Phone Number", "Change Password", "Log Off", "Delete Account"])
         if value == 1:
@@ -61,6 +75,11 @@ class CLI:
             self.DeleteAccount()
     
     def DrawChangeValueMenu(self, UserAttribute):
+        """Launches and drives a menu for changing an attribute of a logged in user account.
+
+        :param UserAttribute DB.UserAttribute: The attribute to modify about a user account.
+
+        """
         User = self.Database.FindUser(self.Database.UserAttribute.ID, self.CurrentUserID)
         Password = ""
         NewValue = ""
@@ -101,11 +120,13 @@ class CLI:
         self.LoggedInMenu()
 
     def LogOff(self):
+        """Logs off the current user account."""
         self.CurrentUserID = -1
-        print(const.LOG_OFF_TEXT)
+        Notice(const.LOG_OFF_TEXT)
         self.PublicMainMenu()
     
     def DeleteAccount(self):
+        """Launches and drives a menu for deleting the current user account."""
         PrintHeader(const.DELETE_ACCOUNT_HEADER)
         answer = input(f"{const.DELETE_ACCOUNT_WARNING} Do you wish to continue? (Y/n) ").strip()
         if answer == "Y":
@@ -120,6 +141,7 @@ class CLI:
             self.LoggedInMenu()
 
     def CreateNewUser(self):
+        """Launches and drives a menu for creating a new user account."""
         PrintHeader(const.SIGN_UP_MENU_HEADER)
         print(const.SIGN_UP_DESC_TEXT)
         print()
@@ -144,6 +166,7 @@ class CLI:
         self.PublicMainMenu()
         
     def LogIn(self):
+        """Launches and drives a menu to log into an existing user account."""
         PrintHeader(const.LOG_IN_HEADER)
         UserName = self.InputHandler.GetValidInput(InputBehavior=self.InputHandler.InputBehavior.Email, Message=const.EMAIL_PROMPT, FailedMessage=const.INVALID_EMAIL)
         print()
@@ -163,20 +186,24 @@ class CLI:
             self.LogIn()
 
     def Exit(self):
+        """Closes the application."""
         Notice(const.SHUTDOWN_TEXT)
         quit()
 
 def Notice(Message):
+    """Displays a notice for a short amount of time before returning control to the user."""
     print(Message)
     time.sleep(const.SLEEP_NOTICE)
 
 def ClearScreen():
+    """Clears all text in the terminal window."""
     if platform.system().lower()=="windows":
         os.system("cls")
     else:
         os.system("clear")
 
 def PrintHeader(title):
+    """Clears the screen and prints a header for a menu."""
     ClearScreen()
     print(f"{title}\n==========\n")
 
