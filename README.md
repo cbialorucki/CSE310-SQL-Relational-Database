@@ -18,6 +18,10 @@
 
 {Describe the structure (tables) of the relational database that you created.}
 
+# Documentation
+
+[Program Code Documentation](/Sphinx-docs/markdown/index.md)
+
 # Development Environment
 
 Tools Used
@@ -29,13 +33,12 @@ Programming Languages and Libraries Used
 
 # Useful Websites
 
-{Make a list of websites that you found helpful in this project}
-* [Web Site Name](http://url.link.goes.here)
-* [Web Site Name](http://url.link.goes.here)
+* [Python Central](https://www.pythoncentral.io/)
+* [SQLite Tutorial](https://www.sqlitetutorial.net/)
+* [Sphinx](https://www.sphinx-doc.org/en/master/index.html)
 
 # Future Work
 
-{Make a list of things that you need to fix, improve, and add in the future.}
-* Item 1
-* Item 2
-* Item 3
+* Security requires improvement. This software should not be used in any commercial or professional environment.
+* For a permanent installation, the SQL database needs to be stored to disk, not in memory only. Currently the program stores the database in memory, which is deleted when the program is closed.
+* An internet-connected front end would make this system much more useful. With an internet-connected front end pointing to a permanent installation, users would be able to log in, log out, and log in on another computer instead of being limited to testing it locally.
