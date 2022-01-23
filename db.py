@@ -45,7 +45,7 @@ class DB:
     def FindUser(self, UserAttribute, Input):
         """Finds a user account for a given input.
 
-        :param UserAttribute DB.UserAttribute: The user attribute to use for searching for the user.
+        :param UserAttribute UserAttribute: The user attribute to use for searching for the user.
         :param Input str: The string used to search for the user according to the UserAttribute.
         :returns: list[str]: A list containing the ID, Name, Phone, and Email Address of the found user.
 
@@ -114,7 +114,7 @@ class DB:
         """Changes an attribute about a user.
 
         :param UserID int: The ID for the user account.
-        :param UserAttribute DB.UserAttribute: The attribute to change about the user account.
+        :param UserAttribute UserAttribute: The attribute to change about the user account.
         :param Value str: The new value for the specified attribute.
         :param Password str: The password used for the user account.
         :returns: bool: True if the change was successful, False if the user account does not.
