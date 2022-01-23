@@ -2,7 +2,7 @@
 sphinx-quickstart on Sat Jan 22 22:06:43 2022.
 You can adapt this file completely to your liking, but it should at least
 contain the root `toctree` directive. -->
-# Welcome to CSE310-SQL-Relational-Database’s documentation!
+# Welcome to the documentation for CSE310 SQL Relational Database!
 
 # Contents:
 
