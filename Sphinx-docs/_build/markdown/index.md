@@ -20,15 +20,3 @@ contain the root `toctree` directive. -->
 
 
 * [main module](main.md)
-
-
-# Indices and tables
-
-
-* [Index](genindex.md)
-
-
-* [Module Index](py-modindex.md)
-
-
-* [Search Page](search.md)
